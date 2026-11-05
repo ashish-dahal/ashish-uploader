@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<title>Authorization</title>
+<link rel="icon" href="icon.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <header><img src="icon.png" alt=""><a href="./">Ashish Uploader</a></header>
+  <h1 id="title">Finishing sign-in</h1>
+  <div class="card" id="box">
+    <p id="msg">Reading the response from TikTok...</p>
+  </div>
+  <p class="muted">This page runs entirely in your browser. The code is not sent anywhere; paste it into the uploader on your computer. It expires in a few minutes and works once.</p>
+</main>
+<script>
+(function () {
+  var q = new URLSearchParams(location.search);
+  var box = document.getElementById("box");
+  var title = document.getElementById("title");
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]; }); }
+  if (q.get("error")) {
+    title.textContent = "Authorization failed";
+    box.innerHTML = "<p>TikTok returned an error:</p><span class='code'>" + esc(q.get("error")) +
+      (q.get("error_description") ? ": " + esc(q.get("error_description")) : "") + "</span>";
+    return;
+  }
+  var code = q.get("code");
+  if (!code) {
+    title.textContent = "Nothing to show";
+    box.innerHTML = "<p>No authorization code was found. Start the sign-in again from the uploader.</p>";
+    return;
+  }
+  // Give the whole redirect URL: the uploader checks the state value and extracts the code.
+  var full = location.href;
+  title.textContent = "Signed in with TikTok";
+  box.innerHTML = "<p>Copy this URL and paste it into the uploader prompt:</p><span class='code' id='u'>" + esc(full) +
+    "</span><button id='c'>Copy URL</button>";
+  document.getElementById("c").onclick = function () {
+    navigator.clipboard.writeText(full).then(function () { document.getElementById("c").textContent = "Copied"; });
+  };
+  // Strip the code from history so it is not left in the address bar.
+  try { history.replaceState(null, "", location.pathname); } catch (e) {}
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,5 @@
+uploader/.env
+uploader/queue/
+__pycache__/
+*.pyc
+.venv/
